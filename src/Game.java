@@ -34,7 +34,6 @@ public class Game extends JPanel implements Runnable, ActionListener {
         button.setFocusPainted(true);
 
         this.add(button);
-        this.add(jLabel);
     }
 
     public void paint(Graphics g) {
@@ -59,7 +58,7 @@ public class Game extends JPanel implements Runnable, ActionListener {
             slot2 = rand.nextInt(5)+1;
             slot3 = rand.nextInt(5)+1;
             System.out.println(slot1+""+slot2+""+slot3);
-            
+
             slots[0] = slot1;
             slots[1] = slot2;
             slots[2] = slot3;
