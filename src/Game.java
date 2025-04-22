@@ -6,21 +6,16 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Game extends JPanel implements Runnable, ActionListener {
-    Random rand = new Random();
-
 
     boolean pulled = false;
 
-    int currentFrame = 1;
-    int slot1 = rand.nextInt(5 ) + 1;
-    int slot2 = rand.nextInt(5 ) + 1;
-    int slot3 = rand.nextInt(5 ) + 1;
-
+    int slot1;
+    int slot2;
+    int slot3;
     int[] slots = new int[3];
 
     JButton button;
     JLabel jLabel;
-    Image slotMachine1;
     Thread gameThread;
 
     Game() {
@@ -30,7 +25,6 @@ public class Game extends JPanel implements Runnable, ActionListener {
 
         //Adds and sets variables for the button
         button  = new JButton();
-
         button.setSize(45,45);
         button.setLocation(280,155);
         button.addActionListener(this);
@@ -39,21 +33,13 @@ public class Game extends JPanel implements Runnable, ActionListener {
         button.setBorderPainted(true);
         button.setFocusPainted(true);
 
-        jLabel = new JLabel();
-        jLabel.setLayout(new BorderLayout());
-        jLabel.setText("Bet:");
-        jLabel.setVisible(true);
-
-
         this.add(button);
         this.add(jLabel);
-
     }
 
     public void paint(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
         g2D.dispose();
-
     }
 
     public void startGameThread() {
@@ -65,15 +51,15 @@ public class Game extends JPanel implements Runnable, ActionListener {
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 
-        if (actionEvent.getSource().equals(button)) {
+        Random rand = new Random();
 
+        if (actionEvent.getSource().equals(button)) {
 
             slot1 = rand.nextInt(5)+1;
             slot2 = rand.nextInt(5)+1;
             slot3 = rand.nextInt(5)+1;
             System.out.println(slot1+""+slot2+""+slot3);
-
-
+            
             slots[0] = slot1;
             slots[1] = slot2;
             slots[2] = slot3;
