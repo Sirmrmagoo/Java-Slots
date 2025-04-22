@@ -1,12 +1,12 @@
 import javax.swing.*;
 import java.util.Objects;
 
-public class GameJFrame extends JFrame{
+public class GameFrame extends JFrame{
 
-    GameJPanel panel;
+    Game panel;
 
-    GameJFrame() {
-        panel = new GameJPanel();
+    GameFrame() {
+        panel = new Game();
         this.setTitle("Slot Machine");
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

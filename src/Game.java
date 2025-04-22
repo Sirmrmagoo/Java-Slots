@@ -3,10 +3,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Random;
 
-public class GameJPanel extends JPanel implements Runnable, ActionListener {
+public class Game extends JPanel implements Runnable, ActionListener {
     Random rand = new Random();
 
 
@@ -24,7 +23,7 @@ public class GameJPanel extends JPanel implements Runnable, ActionListener {
     Image slotMachine1;
     Thread gameThread;
 
-    GameJPanel() {
+    Game() {
 
         this.setPreferredSize(new Dimension(500,500));
         this.setLayout(null);
