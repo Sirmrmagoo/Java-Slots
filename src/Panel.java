@@ -4,6 +4,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
@@ -16,6 +17,10 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     int slot3 = 0;
     int[] slots = new int[3];
 
+    Image[] frames;
+    int currentFrame = 0;
+    boolean animationActive = false;
+
     final int PANEL_WIDTH = 500;
     final int PANEL_HEIGHT = 500;
 
@@ -23,24 +28,32 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     JLabel betNum;
     JSlider bet;
-    Image slotIdle;
+    Image slot;
     JButton pullButton;
     Timer timer;
 
 
+    public void animationFrames() {
+        slot = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slot.png"))).getImage();
+
+        frames = new Image[12];
+        for (int i = 0; i < 12; i++) {
+            frames[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slotFrame" + i + ".png"))).getImage();
+
+        }
+        timer = new Timer(100, this);
+    }
+
 
     Panel() {
-        timer = new Timer(500,null);
-
+        animationFrames();
 
         this.setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));
         this.setBackground(new Color(240,235,210));
         this.setLayout(null);
 
-        slotIdle = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slot.png"))).getImage();
-
         try {
-            InputStream is = getClass().getResourceAsStream("/res/Minecraft.ttf");
+            InputStream is = getClass().getResourceAsStream("/res/fonts/Minecraft.ttf");
             assert is != null;
             Font customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -81,6 +94,23 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
         if (actionEvent.getSource().equals(pullButton)) {
             if (money > 0) {
+                animationActive = true;
+
+                timer = new Timer(100, e -> {
+
+                    if (currentFrame < frames.length - 1 ) {
+                        currentFrame++;
+                        repaint();
+                    }else {
+                        timer.stop();
+                        animationActive = false;
+                        currentFrame = 0;
+                        repaint();
+                    }
+
+                });
+                timer.start();
+
                 Random rand = new Random();
 
                 slot1 = rand.nextInt(5) + 1;
@@ -125,11 +155,18 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         }
     }
 
+
+
+
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); // paints background and child components properly
+        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        g2.drawImage(slotIdle, 50, 50, null); // draws under the button
+        if(animationActive) {
+            g2.drawImage(frames[currentFrame],50,50,null);
+        }else {
+            g2.drawImage(slot, 50, 50, null);
+        }
     }
 
     @Override
