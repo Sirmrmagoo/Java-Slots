@@ -4,6 +4,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
@@ -18,15 +19,15 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     final int PANEL_WIDTH = 500;
     final int PANEL_HEIGHT = 500;
 
-
     int money = 750;
-
 
     JLabel betNum;
     JSlider bet;
     Image slotIdle;
     JButton pullButton;
     Timer timer;
+
+
 
     Panel() {
         timer = new Timer(500,null);
@@ -38,25 +39,40 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
         slotIdle = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slot.png"))).getImage();
 
+        try {
+            InputStream is = getClass().getResourceAsStream("/res/Minecraft.ttf");
+            assert is != null;
+            Font customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(customFont);
 
-        pullButton = new JButton("p");
+            betNum = new JLabel();
+            betNum.setLayout(null);
+            betNum.setFont(customFont);
+            betNum.setBounds(235,440,50,40);
+            this.add(betNum);
+
+        } catch (Exception e) {
+            System.out.println("Crashed");
+        }
+
+        pullButton = new JButton();
         pullButton.setLayout(null);
         pullButton.addActionListener(this);
-        pullButton.setBounds(60,60,120,40);
+        pullButton.setOpaque(false);
+        pullButton.setContentAreaFilled(false);
+        pullButton.setBorderPainted(false);
+        pullButton.setBounds(278,160,50,50);
         this.add(pullButton);
 
 
         bet = new JSlider(0, money,0);
         bet.addChangeListener(this);
         bet.setLayout(null);
-        bet.setBounds(10,10,100,15);
+        bet.setBounds(200,470,100,15);
+        bet.setValue(1);
         this.add(bet);
 
-        betNum = new JLabel();
-        betNum.setText("Bet: " + bet.getValue());
-        betNum.setLayout(null);
-        betNum.setBounds(10,10,50,40);
-        this.add(betNum);
    }
 
 
@@ -66,6 +82,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         if (actionEvent.getSource().equals(pullButton)) {
             if (money > 0) {
                 Random rand = new Random();
+
                 slot1 = rand.nextInt(5) + 1;
                 slot2 = rand.nextInt(5) + 1;
                 slot3 = rand.nextInt(5) + 1;
@@ -117,10 +134,14 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     @Override
     public void stateChanged (ChangeEvent changeEvent){
+        if (bet.getValue() == 0) {
+            bet.setValue(1);
+        }
 
         betNum.setText("Bet: " + bet.getValue());
     }
 
     public void startGameThread () {
+
     }
 }
