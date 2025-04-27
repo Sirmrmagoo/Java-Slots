@@ -11,20 +11,19 @@ import java.util.Random;
 
 public class Panel extends JPanel implements ActionListener, ChangeListener {
 
+    //Slot And Money Calculation Elements
     int slot1 = 1;
     int slot2 = 2;
     int slot3 = 2;
     int[] slots = new int[3];
+    int money = 750;
 
+    //Animation Elements
     Image[] frames;
     int currentFrame = 0;
     boolean animationActive = false;
 
-    final int PANEL_WIDTH = 500;
-    final int PANEL_HEIGHT = 500;
-
-    int money = 750;
-
+    //GUI Elements
     JLabel betNum;
     JSlider bet;
     JLabel moneyNum;
@@ -34,28 +33,37 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     Image slot3icon;
     JButton pullButton;
     Timer timer;
+    final int PANEL_WIDTH = 500;
+    final int PANEL_HEIGHT = 500;
 
 
     Panel() {
+
+        //Gets The Frames For The Lever Pull Animation
         animationFrames();
 
+        //Panel Configuration
         this.setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));
         this.setBackground(new Color(240,235,210));
         this.setLayout(null);
 
+
         try {
+            //Gets Custom Minecraft Font For GUI Elements
             InputStream is = getClass().getResourceAsStream("/res/fonts/Minecraft.ttf");
             assert is != null;
             Font customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(customFont);
 
+            //Adds And Configures The Bet Counter At The Bottom Of The Screen
             betNum = new JLabel();
             betNum.setLayout(null);
             betNum.setFont(customFont);
             betNum.setBounds(235,440,400,40);
             this.add(betNum);
 
+            //Adds And Configures The Money Counter At The Top Of The Screen
             moneyNum = new JLabel();
             moneyNum.setLayout(null);
             moneyNum.setFont(customFont);
@@ -67,6 +75,8 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             System.out.println("Crashed");
         }
 
+
+        //Adds And Configures The Button For Spinning The Slots
         pullButton = new JButton();
         pullButton.setLayout(null);
         pullButton.addActionListener(this);
@@ -76,6 +86,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         pullButton.setBounds(278,160,50,50);
         this.add(pullButton);
 
+        //Adds And Configures The Slider For Changing The Bet Size
         bet = new JSlider(0, money,0);
         bet.addChangeListener(this);
         bet.setLayout(null);
@@ -87,13 +98,12 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-
         if (actionEvent.getSource().equals(pullButton)) {
             if (money > 0) {
+                timer.start();
+                // Plays Te Animation Of The Slots Spinning Then Shows The Results
                 animationActive = true;
-
                 timer = new Timer(100, e -> {
-
                     if (currentFrame < frames.length - 1) {
                         currentFrame++;
                         repaint();
@@ -105,7 +115,6 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
                         showSlots();
                     }
                 });
-                timer.start();
             }
         }
     }
@@ -125,6 +134,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
         Arrays.sort(slots);
         updateSlots();
+
 
         if (slots[0] == 5 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 50;
