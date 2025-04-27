@@ -41,6 +41,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
         //Gets The Frames For The Lever Pull Animation
         animationFrames();
+        updateSlots();
 
         //Panel Configuration
         this.setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));
@@ -75,7 +76,6 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             System.out.println("Crashed");
         }
 
-
         //Adds And Configures The Button For Spinning The Slots
         pullButton = new JButton();
         pullButton.setLayout(null);
@@ -100,7 +100,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if (actionEvent.getSource().equals(pullButton)) {
             if (money > 0) {
-                timer.start();
+
                 // Plays Te Animation Of The Slots Spinning Then Shows The Results
                 animationActive = true;
                 timer = new Timer(100, e -> {
@@ -115,15 +115,13 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
                         showSlots();
                     }
                 });
+                timer.start();
             }
         }
     }
 
-
     public void showSlots() {
-
         Random rand = new Random();
-
         slot1 = rand.nextInt(5) + 1;
         slot2 = rand.nextInt(5) + 1;
         slot3 = rand.nextInt(5) + 1;
@@ -131,10 +129,8 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         slots[0] = slot1;
         slots[1] = slot2;
         slots[2] = slot3;
-
         Arrays.sort(slots);
         updateSlots();
-
 
         if (slots[0] == 5 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 50;
@@ -174,9 +170,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
         slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
         slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
-
     }
-
 
     @Override
     public void paintComponent(Graphics g) {
@@ -201,6 +195,4 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         }
         betNum.setText("Bet: " + bet.getValue());
     }
-
-
 }
