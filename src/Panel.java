@@ -13,7 +13,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     int slot1 = 1;
     int slot2 = 2;
-    int slot3 = 0;
+    int slot3 = 2;
     int[] slots = new int[3];
 
     Image[] frames;
@@ -27,6 +27,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     JLabel betNum;
     JSlider bet;
+    JLabel moneyNum;
     Image slotMachine;
     Image slot1icon;
     Image slot2icon;
@@ -52,8 +53,15 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             betNum = new JLabel();
             betNum.setLayout(null);
             betNum.setFont(customFont);
-            betNum.setBounds(235,440,50,40);
+            betNum.setBounds(235,440,400,40);
             this.add(betNum);
+
+            moneyNum = new JLabel();
+            moneyNum.setLayout(null);
+            moneyNum.setFont(customFont);
+            moneyNum.setBounds(225,15,400,40);
+            moneyNum.setText("Money: " + money);
+            this.add(moneyNum);
 
         } catch (Exception e) {
             System.out.println("Crashed");
@@ -68,14 +76,12 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         pullButton.setBounds(278,160,50,50);
         this.add(pullButton);
 
-
         bet = new JSlider(0, money,0);
         bet.addChangeListener(this);
         bet.setLayout(null);
         bet.setBounds(200,470,100,15);
         bet.setValue(1);
         this.add(bet);
-
    }
 
 
@@ -101,9 +107,6 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
                 });
                 timer.start();
             }
-            else{
-                System.out.println("You Lost All Your Money, Go Cry");
-            }
         }
     }
 
@@ -121,51 +124,47 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         slots[2] = slot3;
 
         Arrays.sort(slots);
-
-        System.out.println(slot1 + "" + slot2 + "" + slot3);
-
-        animationFrames();
+        updateSlots();
 
         if (slots[0] == 5 && slots[0] == slots[1] && slots[0] == slots[2]) {
-            System.out.println("777 Bet 50x");
             money += bet.getValue() * 50;
             bet.setMaximum(money);
         } else if (slots[0] == 4 && slots[0] == slots[1] && slots[0] == slots[2]) {
-            System.out.println("All 3 Bells Bet 25x");
             money += bet.getValue() * 25;
             bet.setMaximum(money);
         } else if ((slots[0] == 1 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 2 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 3 && slots[0] == slots[1] && slots[1] == slots[2])) {
-            System.out.println("All Same Fruit Bet 10x");
             money += bet.getValue() * 10;
             bet.setMaximum(money);
         } else if (slots[0] == 1 && slots[1] == 2 && slots[2] == 3) {
-            System.out.println("All Fruit Bet 2x");
             money += bet.getValue() * 2;
             System.out.println(money);
             bet.setMaximum(money);
         } else {
-            System.out.println("You Lost");
             money -= bet.getValue();
             bet.setMaximum(money);
         }
+        moneyNum.setText("Money: " + money);
     }
-
-
 
     public void animationFrames() {
 
         //SLOT1ICON GET THE RES PATH WITH THE SLOT1 INT
         slotMachine = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slot.png"))).getImage();
-        slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
-        slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
 
         frames = new Image[12];
         for (int i = 0; i < 12; i++) {
             frames[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slotFrame" + i + ".png"))).getImage();
         }
         timer = new Timer(100, this);
+    }
+
+    public void updateSlots() {
+        slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
+        slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
+        slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
+
     }
 
 
@@ -178,8 +177,9 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
         }else {
             g2.drawImage(slotMachine, 50, 50, null);
-            g2.drawImage(slot1icon,100,50,null);
-            g2.drawImage(slot2icon,150,50,null);
+            g2.drawImage(slot1icon,176,170,null);
+            g2.drawImage(slot2icon,206,189,null);
+            g2.drawImage(slot3icon,236,206,null);
 
         }
     }
@@ -189,11 +189,8 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         if (bet.getValue() == 0) {
             bet.setValue(1);
         }
-
         betNum.setText("Bet: " + bet.getValue());
     }
 
-    public void startGameThread () {
 
-    }
 }
