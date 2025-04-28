@@ -1,13 +1,16 @@
+import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class Panel extends JPanel implements ActionListener, ChangeListener {
 
@@ -39,9 +42,10 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
     Panel() {
 
-        //Gets The Frames For The Lever Pull Animation
+        //Gets The Things For The Animation/Sound
         animationFrames();
         updateSlots();
+
 
         //Panel Configuration
         this.setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));
@@ -50,6 +54,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
 
 
         try {
+
             //Gets Custom Minecraft Font For GUI Elements
             InputStream is = getClass().getResourceAsStream("/res/fonts/Minecraft.ttf");
             assert is != null;
@@ -100,9 +105,18 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     public void actionPerformed(ActionEvent actionEvent) {
         if (actionEvent.getSource().equals(pullButton)) {
             if (money > 0) {
-
-                // Plays Te Animation Of The Slots Spinning Then Shows The Results
+                // Plays The Animation Of The Slots Spinning Then Shows The Results
                 animationActive = true;
+
+                try {
+                    AudioInputStream slotsSpinningSound = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/slotSpin.wav")));
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(slotsSpinningSound);
+                    clip.start();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
                 timer = new Timer(100, e -> {
                     if (currentFrame < frames.length - 1) {
                         currentFrame++;
@@ -132,33 +146,73 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         Arrays.sort(slots);
         updateSlots();
 
+
+
         if (slots[0] == 5 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 50;
             bet.setMaximum(money);
+            try {
+                AudioInputStream slotsSpinningSound = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/slotSpin.wav")));
+                Clip clip = AudioSystem.getClip();
+                clip.open(slotsSpinningSound);
+                clip.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
         } else if (slots[0] == 4 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 25;
             bet.setMaximum(money);
+            try {
+                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
+                Clip clip = AudioSystem.getClip();
+                clip.open(win);
+                clip.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else if ((slots[0] == 1 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 2 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 3 && slots[0] == slots[1] && slots[1] == slots[2])) {
             money += bet.getValue() * 10;
             bet.setMaximum(money);
+            try {
+                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
+                Clip clip = AudioSystem.getClip();
+                clip.open(win);
+                clip.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else if (slots[0] == 1 && slots[1] == 2 && slots[2] == 3) {
             money += bet.getValue() * 2;
             System.out.println(money);
             bet.setMaximum(money);
+            try {
+                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
+                Clip clip = AudioSystem.getClip();
+                clip.open(win);
+                clip.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else {
             money -= bet.getValue();
             bet.setMaximum(money);
         }
         moneyNum.setText("Money: " + money);
+        try {
+            AudioInputStream lost = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Lost.wav")));
+            Clip clip = AudioSystem.getClip();
+            clip.open(lost);
+            clip.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void animationFrames() {
-
-        //SLOT1ICON GET THE RES PATH WITH THE SLOT1 INT
         slotMachine = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slot.png"))).getImage();
-
         frames = new Image[12];
         for (int i = 0; i < 12; i++) {
             frames[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slotFrame" + i + ".png"))).getImage();
@@ -166,10 +220,10 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         timer = new Timer(100, this);
     }
 
-    public void updateSlots() {
-        slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
-        slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
-        slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
+    public void updateSlots(){
+                slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
+                slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
+                slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
     }
 
     @Override
@@ -184,8 +238,9 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             g2.drawImage(slot1icon,176,170,null);
             g2.drawImage(slot2icon,206,189,null);
             g2.drawImage(slot3icon,236,206,null);
-
         }
+
+
     }
 
     @Override
