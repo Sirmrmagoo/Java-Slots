@@ -5,12 +5,10 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class Panel extends JPanel implements ActionListener, ChangeListener {
 
@@ -25,6 +23,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     Image[] frames;
     int currentFrame = 0;
     boolean animationActive = false;
+    boolean canPull = true;
 
     //GUI Elements
     JLabel betNum;
@@ -43,8 +42,8 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
     Panel() {
 
         //Gets The Things For The Animation/Sound
-        animationFrames();
-        updateSlots();
+        getAnimationFrames();
+        updateSlotIcons();
 
 
         //Panel Configuration
@@ -53,14 +52,14 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         this.setLayout(null);
 
 
+        //Gets Custom Minecraft Font For GUI Elements
         try {
-
-            //Gets Custom Minecraft Font For GUI Elements
             InputStream is = getClass().getResourceAsStream("/res/fonts/Minecraft.ttf");
             assert is != null;
             Font customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(12f);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(customFont);
+
 
             //Adds And Configures The Bet Counter At The Bottom Of The Screen
             betNum = new JLabel();
@@ -68,6 +67,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             betNum.setFont(customFont);
             betNum.setBounds(235,440,400,40);
             this.add(betNum);
+
 
             //Adds And Configures The Money Counter At The Top Of The Screen
             moneyNum = new JLabel();
@@ -77,8 +77,9 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
             moneyNum.setText("Money: " + money);
             this.add(moneyNum);
 
+
         } catch (Exception e) {
-            System.out.println("Crashed");
+            System.out.println("Font Error");
         }
 
         //Adds And Configures The Button For Spinning The Slots
@@ -91,6 +92,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         pullButton.setBounds(278,160,50,50);
         this.add(pullButton);
 
+
         //Adds And Configures The Slider For Changing The Bet Size
         bet = new JSlider(0, money,0);
         bet.addChangeListener(this);
@@ -98,25 +100,30 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         bet.setBounds(200,470,100,15);
         bet.setValue(1);
         this.add(bet);
+
+
    }
 
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        if (actionEvent.getSource().equals(pullButton)) {
+        if (actionEvent.getSource().equals(pullButton) && canPull) {
             if (money > 0) {
-                // Plays The Animation Of The Slots Spinning Then Shows The Results
+                canPull = false;
+                Random rand = new Random();
+                slot1 = rand.nextInt(5) + 1;
+                slot2 = rand.nextInt(5) + 1;
+                slot3 = rand.nextInt(5) + 1;
+
+                slots[0] = slot1;
+                slots[1] = slot2;
+                slots[2] = slot3;
+                Arrays.sort(slots);
+                updateSlotIcons();
+
+                // Plays The Animation Of The Slots Spinning
+                Clip("res/sounds/slotSpin.wav");
                 animationActive = true;
-
-                try {
-                    AudioInputStream slotsSpinningSound = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/slotSpin.wav")));
-                    Clip clip = AudioSystem.getClip();
-                    clip.open(slotsSpinningSound);
-                    clip.start();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-
                 timer = new Timer(100, e -> {
                     if (currentFrame < frames.length - 1) {
                         currentFrame++;
@@ -126,7 +133,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
                         animationActive = false;
                         currentFrame = 0;
                         repaint();
-                        showSlots();
+                        getScore();
                     }
                 });
                 timer.start();
@@ -134,84 +141,46 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         }
     }
 
-    public void showSlots() {
-        Random rand = new Random();
-        slot1 = rand.nextInt(5) + 1;
-        slot2 = rand.nextInt(5) + 1;
-        slot3 = rand.nextInt(5) + 1;
+    public void getScore() {
 
-        slots[0] = slot1;
-        slots[1] = slot2;
-        slots[2] = slot3;
-        Arrays.sort(slots);
-        updateSlots();
-
-
-
+        //If 777
         if (slots[0] == 5 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 50;
             bet.setMaximum(money);
-            try {
-                AudioInputStream slotsSpinningSound = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/slotSpin.wav")));
-                Clip clip = AudioSystem.getClip();
-                clip.open(slotsSpinningSound);
-                clip.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-        } else if (slots[0] == 4 && slots[0] == slots[1] && slots[0] == slots[2]) {
+            Clip("res/sounds/Win.wav");
+        }
+        //If Three Of A Kind Diamond
+        else if (slots[0] == 4 && slots[0] == slots[1] && slots[0] == slots[2]) {
             money += bet.getValue() * 25;
             bet.setMaximum(money);
-            try {
-                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
-                Clip clip = AudioSystem.getClip();
-                clip.open(win);
-                clip.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if ((slots[0] == 1 && slots[0] == slots[1] && slots[1] == slots[2]) ||
+            Clip("res/sounds/Win.wav");
+        }
+        //If Three Of A Kind Fruit
+        else if ((slots[0] == 1 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 2 && slots[0] == slots[1] && slots[1] == slots[2]) ||
                 (slots[0] == 3 && slots[0] == slots[1] && slots[1] == slots[2])) {
             money += bet.getValue() * 10;
             bet.setMaximum(money);
-            try {
-                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
-                Clip clip = AudioSystem.getClip();
-                clip.open(win);
-                clip.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else if (slots[0] == 1 && slots[1] == 2 && slots[2] == 3) {
+            Clip("res/sounds/Win.wav");
+        }
+        //If One Of Each Fruit
+        else if (slots[0] == 1 && slots[1] == 2 && slots[2] == 3) {
             money += bet.getValue() * 2;
             System.out.println(money);
             bet.setMaximum(money);
-            try {
-                AudioInputStream win = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Win.wav")));
-                Clip clip = AudioSystem.getClip();
-                clip.open(win);
-                clip.start();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+            Clip("res/sounds/Win.wav");
+        }
+        //If You Lose
+        else {
             money -= bet.getValue();
             bet.setMaximum(money);
+            Clip("res/sounds/Lost.wav");
         }
         moneyNum.setText("Money: " + money);
-        try {
-            AudioInputStream lost = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource("res/sounds/Lost.wav")));
-            Clip clip = AudioSystem.getClip();
-            clip.open(lost);
-            clip.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        canPull = true;
     }
 
-    public void animationFrames() {
+    public void getAnimationFrames() {
         slotMachine = new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slotMachine/slot.png"))).getImage();
         frames = new Image[12];
         for (int i = 0; i < 12; i++) {
@@ -220,10 +189,23 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         timer = new Timer(100, this);
     }
 
-    public void updateSlots(){
-                slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
-                slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
-                slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
+    public void updateSlotIcons(){
+        slot1icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot1+".png"))).getImage();
+        slot2icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot2+".png"))).getImage();
+        slot3icon= new ImageIcon(Objects.requireNonNull(getClass().getResource("/res/slots/"+slot3+".png"))).getImage();
+    }
+
+
+    public void Clip(String filepath) {
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(filepath)));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("AudioClipError");
+        }
+
     }
 
     @Override
@@ -231,15 +213,22 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         if(animationActive) {
-            g2.drawImage(frames[currentFrame],50,50,null);
-
-        }else {
+            g2.drawImage(frames[currentFrame], 50, 50, null);
+            if (currentFrame >= 8) {
+                g2.drawImage(slot1icon,176,170,null);
+            }
+            if (currentFrame >= 10) {
+                g2.drawImage(slot2icon,206,189,null);
+            }
+            if (currentFrame >= 12) {
+                g2.drawImage(slot3icon,236,206,null);
+            }
+        } else {
             g2.drawImage(slotMachine, 50, 50, null);
             g2.drawImage(slot1icon,176,170,null);
             g2.drawImage(slot2icon,206,189,null);
             g2.drawImage(slot3icon,236,206,null);
         }
-
 
     }
 
