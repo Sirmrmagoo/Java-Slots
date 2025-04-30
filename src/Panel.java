@@ -89,7 +89,7 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         pullButton.setOpaque(false);
         pullButton.setContentAreaFilled(false);
         pullButton.setBorderPainted(false);
-        pullButton.setBounds(278,160,50,50);
+        pullButton.setBounds(272,190,50,50);
         this.add(pullButton);
 
 
@@ -100,8 +100,6 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         bet.setBounds(200,470,100,15);
         bet.setValue(1);
         this.add(bet);
-
-
    }
 
 
@@ -174,7 +172,6 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         else {
             money -= bet.getValue();
             bet.setMaximum(money);
-            Clip("res/sounds/Lost.wav");
         }
         moneyNum.setText("Money: " + money);
         canPull = true;
@@ -215,19 +212,19 @@ public class Panel extends JPanel implements ActionListener, ChangeListener {
         if(animationActive) {
             g2.drawImage(frames[currentFrame], 50, 50, null);
             if (currentFrame >= 8) {
-                g2.drawImage(slot1icon,176,170,null);
+                g2.drawImage(slot1icon,206,182,null);
             }
             if (currentFrame >= 10) {
-                g2.drawImage(slot2icon,206,189,null);
+                g2.drawImage(slot2icon,230,194,null);
             }
             if (currentFrame >= 12) {
-                g2.drawImage(slot3icon,236,206,null);
+                g2.drawImage(slot3icon,254,206,null);;
             }
         } else {
             g2.drawImage(slotMachine, 50, 50, null);
-            g2.drawImage(slot1icon,176,170,null);
-            g2.drawImage(slot2icon,206,189,null);
-            g2.drawImage(slot3icon,236,206,null);
+            g2.drawImage(slot1icon,206,182,null);
+            g2.drawImage(slot2icon,230,194,null);
+            g2.drawImage(slot3icon,254,206,null);
         }
 
     }
